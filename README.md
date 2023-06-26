@@ -1,2 +1,3 @@
-# eshop-api
-express api for an eshop
+# node-rest-api
+
+some rest apis developed with nodejs
