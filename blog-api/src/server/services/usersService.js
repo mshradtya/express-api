@@ -59,7 +59,16 @@ const readAllUsers = async () => {
   return allUsers;
 };
 
+const readUser = async (id) => {
+  const userDetail = await User.findById({ _id: id }, "-account.password");
+  if (userDetail === null) {
+    return null;
+  }
+  return userDetail;
+};
+
 module.exports = {
   createUser,
   readAllUsers,
+  readUser,
 };

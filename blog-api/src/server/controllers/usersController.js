@@ -82,7 +82,34 @@ const readAllUsers = async (req, res) => {
   }
 };
 
+const readUser = async (req, res) => {
+  try {
+    const userDetail = await usersService.readUser(req.params.id);
+    if (userDetail === null) {
+      return res
+        .status(404)
+        .json({ status: 404, success: false, message: `User does not exist.` });
+    }
+    return res
+      .status(200)
+      .json({ status: 200, success: true, user: userDetail });
+  } catch (error) {
+    if (error.kind === "ObjectId") {
+      return res
+        .status(400)
+        .json({ status: 400, success: false, message: `Invalid user ID.` });
+    } else {
+      return res.status(400).json({
+        status: 400,
+        success: false,
+        message: `Something went wrong. ${error.message}`,
+      });
+    }
+  }
+};
+
 module.exports = {
   createUser,
   readAllUsers,
+  readUser,
 };
