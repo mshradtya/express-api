@@ -7,13 +7,13 @@ const AccountSchema = new Schema(
       type: String,
       required: true,
       maxLength: 32,
-      match: /^\S*$/,
+      match: /^[a-zA-Z][a-zA-Z0-9]*$/,
     },
     lastName: {
       type: String,
       required: true,
       maxLength: 32,
-      match: /^\S*$/,
+      match: /^[a-zA-Z][a-zA-Z0-9]*$/,
     },
     email: {
       type: String,

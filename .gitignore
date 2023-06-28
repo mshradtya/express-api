@@ -11,6 +11,7 @@ blog-api/.env
 
 # production
 /build
+blog-api/dist
 
 # misc
 .DS_Store
