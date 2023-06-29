@@ -411,7 +411,62 @@ const updatePassword = async (req, res) => {
     return res.status(400).json({
       status: 400,
       success: false,
-      message: `Something went wrong. ${error.message}`,
+      message: `${error.message}`,
+    });
+  }
+};
+
+const updateProfile = async (req, res) => {
+  try {
+    if (req.params.id === res.body._id.toString()) {
+      if (Object.keys(req.body).length !== 2) {
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: `jobTitle, and bio is required.`,
+        });
+      }
+      if (
+        Object.keys(req.body).includes("jobTitle") &&
+        Object.keys(req.body).includes("bio")
+      ) {
+        const profileUpdate = await usersService.updateProfile(
+          req.params.id,
+          req.body.jobTitle,
+          req.body.bio
+        );
+        if (!profileUpdate) {
+          return res.status(404).json({
+            status: 404,
+            success: false,
+            message: `User does not exist.`,
+          });
+        }
+        return res.status(200).json({
+          status: 200,
+          success: true,
+          message: `Your profile has been updated`,
+          user: profileUpdate,
+        });
+      } else {
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: `jobTitle, and bio is required.`,
+        });
+      }
+    } else {
+      return res.status(403).json({
+        status: 403,
+        success: false,
+        message: `You do not have sufficient privilege to perform this operation.`,
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      status: 400,
+      success: false,
+      message: `${error.message}`,
     });
   }
 };
@@ -424,4 +479,5 @@ module.exports = {
   updateEmail,
   updateRole,
   updatePassword,
+  updateProfile,
 };

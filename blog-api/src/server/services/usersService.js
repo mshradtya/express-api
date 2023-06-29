@@ -152,6 +152,28 @@ const updatePassword = async (id, newPassword) => {
   };
 };
 
+const updateProfile = async (id, newJobTitle, newBio) => {
+  const user = await User.findById(id);
+  user.profile.jobTitle = newJobTitle;
+  user.profile.bio = newBio;
+  await user.save();
+  return {
+    _id: user._id,
+    account: {
+      firstName: user.account.firstName,
+      lastName: user.account.lastName,
+      email: user.account.email,
+      role: user.account.role,
+      dateRegistered: user.account.dateRegistered,
+    },
+    profile: {
+      jobTitle: user.profile.jobTitle,
+      bio: user.profile.bio,
+      avatar: user.profile.avatar,
+    },
+  };
+};
+
 module.exports = {
   createUser,
   readAllUsers,
@@ -160,4 +182,5 @@ module.exports = {
   updateEmail,
   updateRole,
   updatePassword,
+  updateProfile,
 };
