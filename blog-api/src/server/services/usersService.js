@@ -89,9 +89,31 @@ const updateName = async (id, newFirstName, newLastName) => {
   };
 };
 
+const updateEmail = async (id, newEmail) => {
+  const user = await User.findById(id);
+  user.account.email = newEmail;
+  await user.save();
+  return {
+    _id: user._id,
+    account: {
+      firstName: user.account.firstName,
+      lastName: user.account.lastName,
+      email: user.account.email,
+      role: user.account.role,
+      dateRegistered: user.account.dateRegistered,
+    },
+    profile: {
+      jobTitle: user.profile.jobTitle,
+      bio: user.profile.bio,
+      avatar: user.profile.avatar,
+    },
+  };
+};
+
 module.exports = {
   createUser,
   readAllUsers,
   readUser,
   updateName,
+  updateEmail,
 };

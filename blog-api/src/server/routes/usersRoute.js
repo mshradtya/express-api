@@ -12,5 +12,10 @@ router.put(
   authController.authUser,
   usersController.updateName
 );
+router.put(
+  "/user/update/email/:id",
+  authController.authUser,
+  usersController.updateEmail
+);
 
 module.exports = router;
