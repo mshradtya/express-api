@@ -108,8 +108,71 @@ const readUser = async (req, res) => {
   }
 };
 
+const updateName = async (req, res) => {
+  try {
+    if (req.params.id === res.body._id.toString()) {
+      if (Object.keys(req.body).length === 0) {
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: `firstName, and lastName is required.`,
+        });
+      }
+      if (Object.keys(req.body).length > 2) {
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: `firstName, and lastName is required.`,
+        });
+      }
+      if (
+        Object.keys(req.body).includes("firstName") &&
+        Object.keys(req.body).includes("lastName")
+      ) {
+        const nameUpdate = await usersService.updateName(
+          req.params.id,
+          req.body.firstName,
+          req.body.lastName
+        );
+        if (!nameUpdate) {
+          return res.status(404).json({
+            status: 404,
+            success: false,
+            message: `User does not exist.`,
+          });
+        }
+        return res.status(200).json({
+          status: 200,
+          success: true,
+          message: `Your name has been updated`,
+          user: nameUpdate,
+        });
+      } else {
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: `firstName, and lastName is required.`,
+        });
+      }
+    } else {
+      return res.status(403).json({
+        status: 403,
+        success: false,
+        message: `You do not have sufficient privilege to perform this operation.`,
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      status: 400,
+      success: false,
+      message: `Something went wrong. ${error.message}`,
+    });
+  }
+};
+
 module.exports = {
   createUser,
   readAllUsers,
   readUser,
+  updateName,
 };

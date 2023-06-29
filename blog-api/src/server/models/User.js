@@ -24,7 +24,10 @@ UserSchema.pre("save", async function (next) {
   user.account.firstName = structFirstName;
   user.account.lastName = structLastName;
 
-  if (user.account.password.length < 33) {
+  if (
+    user.isModified("account.password") &&
+    user.account.password.length < 257
+  ) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(user.account.password, salt);
     user.account.password = hashedPassword;
