@@ -31,7 +31,7 @@ const loginUser = async (req, res) => {
       return res.status(400).json({
         status: 400,
         success: false,
-        message: `Something went wrong. ${error.message}`,
+        message: `${error.message}`,
       });
     }
   }
@@ -69,7 +69,7 @@ const authUser = async (req, res, next) => {
     return res.status(400).json({
       status: 400,
       success: false,
-      message: `Something went wrong. ${error.message}`,
+      message: `${error.message}`,
     });
   }
 };

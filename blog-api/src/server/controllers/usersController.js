@@ -102,7 +102,7 @@ const readUser = async (req, res) => {
       return res.status(400).json({
         status: 400,
         success: false,
-        message: `Something went wrong. ${error.message}`,
+        message: `${error.message}`,
       });
     }
   }
@@ -111,14 +111,7 @@ const readUser = async (req, res) => {
 const updateName = async (req, res) => {
   try {
     if (req.params.id === res.body._id.toString()) {
-      if (Object.keys(req.body).length === 0) {
-        return res.status(400).json({
-          status: 400,
-          success: false,
-          message: `firstName, and lastName is required.`,
-        });
-      }
-      if (Object.keys(req.body).length > 2) {
+      if (Object.keys(req.body).length !== 2) {
         return res.status(400).json({
           status: 400,
           success: false,
@@ -165,7 +158,7 @@ const updateName = async (req, res) => {
     return res.status(400).json({
       status: 400,
       success: false,
-      message: `Something went wrong. ${error.message}`,
+      message: `${error.message}`,
     });
   }
 };
@@ -173,14 +166,7 @@ const updateName = async (req, res) => {
 const updateEmail = async (req, res) => {
   try {
     if (req.params.id === res.body._id.toString()) {
-      if (Object.keys(req.body).length === 0) {
-        return res.status(400).json({
-          status: 400,
-          success: false,
-          message: `email and password is required to change the email.`,
-        });
-      }
-      if (Object.keys(req.body).length > 2) {
+      if (Object.keys(req.body).length !== 2) {
         return res.status(400).json({
           status: 400,
           success: false,
@@ -244,7 +230,79 @@ const updateEmail = async (req, res) => {
     return res.status(400).json({
       status: 400,
       success: false,
-      message: `Something went wrong. ${error.message}`,
+      message: `${error.message}`,
+    });
+  }
+};
+
+const updateRole = async (req, res) => {
+  try {
+    if (res.body.account.role === "Superuser") {
+      if (Object.keys(req.body).length !== 2) {
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: `role and password is required to change the role.`,
+        });
+      }
+      if (
+        Object.keys(req.body).includes("role") &&
+        Object.keys(req.body).includes("password")
+      ) {
+        if (!req.body.password) {
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: `password cannot be blank.`,
+          });
+        }
+        const passwordIsValid = bcrypt.compareSync(
+          req.body.password,
+          res.body.account.password
+        );
+        if (!passwordIsValid) {
+          return res.status(401).json({
+            status: 401,
+            success: false,
+            messge: `password is not correct.`,
+          });
+        }
+        const roleUpdate = await usersService.updateRole(
+          req.params.id,
+          req.body.role
+        );
+        if (!roleUpdate) {
+          return res.status(404).json({
+            status: 404,
+            success: false,
+            message: `User does not exist.`,
+          });
+        }
+        return res.status(200).json({
+          status: 200,
+          success: true,
+          message: `The user's role has been updated.`,
+          user: roleUpdate,
+        });
+      } else {
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: `Please provide a valid role and password to update the role.`,
+        });
+      }
+    } else {
+      return res.status(403).json({
+        status: 403,
+        success: false,
+        message: `You must have a superuser privilege to perform this operation.`,
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      status: 400,
+      success: false,
+      message: `${error.message}`,
     });
   }
 };
@@ -255,4 +313,5 @@ module.exports = {
   readUser,
   updateName,
   updateEmail,
+  updateRole,
 };
