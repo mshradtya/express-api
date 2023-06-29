@@ -131,6 +131,27 @@ const updateRole = async (id, newRole) => {
   };
 };
 
+const updatePassword = async (id, newPassword) => {
+  const user = await User.findById(id);
+  user.account.password = newPassword;
+  await user.save();
+  return {
+    _id: user._id,
+    account: {
+      firstName: user.account.firstName,
+      lastName: user.account.lastName,
+      email: user.account.email,
+      role: user.account.role,
+      dateRegistered: user.account.dateRegistered,
+    },
+    profile: {
+      jobTitle: user.profile.jobTitle,
+      bio: user.profile.bio,
+      avatar: user.profile.avatar,
+    },
+  };
+};
+
 module.exports = {
   createUser,
   readAllUsers,
@@ -138,4 +159,5 @@ module.exports = {
   updateName,
   updateEmail,
   updateRole,
+  updatePassword,
 };

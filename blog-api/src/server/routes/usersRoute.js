@@ -22,5 +22,10 @@ router.put(
   authController.authUser,
   usersController.updateRole
 );
+router.put(
+  "/user/update/password/:id",
+  authController.authUser,
+  usersController.updatePassword
+);
 
 module.exports = router;

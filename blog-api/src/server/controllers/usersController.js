@@ -307,6 +307,115 @@ const updateRole = async (req, res) => {
   }
 };
 
+const updatePassword = async (req, res) => {
+  try {
+    if (req.params.id === res.body._id.toString()) {
+      if (Object.keys(req.body).length !== 3) {
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: `oldPassword, newPassword, confirmNewPassword is required to change the password.`,
+        });
+      }
+      if (
+        Object.keys(req.body).includes("oldPassword") &&
+        Object.keys(req.body).includes("newPassword") &&
+        Object.keys(req.body).includes("confirmNewPassword")
+      ) {
+        if (!req.body.oldPassword) {
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: `oldPassword cannot be blank.`,
+          });
+        }
+        if (!req.body.newPassword) {
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: `newPassword cannot be blank.`,
+          });
+        }
+        if (!req.body.confirmNewPassword) {
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: `confirmNewPassword cannot be blank.`,
+          });
+        }
+        if (req.body.newPassword.length > 256) {
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: "password cannot be more than 256 characters long.",
+          });
+        }
+
+        if (req.body.newPassword.length < 8) {
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: "password cannot be less than 8 characters long.",
+          });
+        }
+        if (req.body.newPassword !== req.body.confirmNewPassword) {
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: "newPassword and confirmNewPassword does not match.",
+          });
+        }
+        const passwordIsValid = bcrypt.compareSync(
+          req.body.oldPassword,
+          res.body.account.password
+        );
+        if (!passwordIsValid) {
+          return res.status(401).json({
+            status: 401,
+            success: false,
+            message: `oldPassword is not correct.`,
+          });
+        }
+        const passwordUpdate = await usersService.updatePassword(
+          req.params.id,
+          req.body.newPassword
+        );
+        if (!passwordUpdate) {
+          return res.status(404).json({
+            status: 404,
+            success: false,
+            message: `User does not exist.`,
+          });
+        }
+        return res.status(200).json({
+          status: 200,
+          success: true,
+          message: `Your password has been updated.`,
+          user: passwordUpdate,
+        });
+      } else {
+        return res.status(400).json({
+          status: 400,
+          success: false,
+          message: `Please provide oldPassword, newPassword, and confirmNewPassword to update your password.`,
+        });
+      }
+    } else {
+      return res.status(403).json({
+        status: 403,
+        success: false,
+        message: `You do not have sufficient privilege to perform this operation.`,
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      status: 400,
+      success: false,
+      message: `Something went wrong. ${error.message}`,
+    });
+  }
+};
+
 module.exports = {
   createUser,
   readAllUsers,
@@ -314,4 +423,5 @@ module.exports = {
   updateName,
   updateEmail,
   updateRole,
+  updatePassword,
 };
