@@ -195,6 +195,13 @@ const updateAvatar = async (id, newAvatar) => {
   };
 };
 
+const deleteUsers = async (usersId) => {
+  const deletedCount = await User.deleteMany({ _id: { $in: usersId } });
+  if (deletedCount) {
+    return deletedCount;
+  }
+};
+
 module.exports = {
   createUser,
   readAllUsers,
@@ -205,4 +212,5 @@ module.exports = {
   updatePassword,
   updateProfile,
   updateAvatar,
+  deleteUsers,
 };

@@ -37,5 +37,10 @@ router.put(
   authController.authUser,
   usersController.updateAvatar
 );
+router.post(
+  "/users/delete",
+  authController.authUser,
+  usersController.deleteUsers
+);
 
 module.exports = router;
