@@ -32,5 +32,10 @@ router.put(
   authController.authUser,
   usersController.updateProfile
 );
+router.put(
+  "/user/update/avatar/:id",
+  authController.authUser,
+  usersController.updateAvatar
+);
 
 module.exports = router;

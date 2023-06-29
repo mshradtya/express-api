@@ -2,6 +2,7 @@ const User = require("../models/User");
 const usersService = require("../services/usersService");
 const bcrypt = require("bcrypt");
 const path = require("path");
+const multer = require("multer");
 
 const createUser = async (req, res) => {
   if (
@@ -471,6 +472,116 @@ const updateProfile = async (req, res) => {
   }
 };
 
+const updateAvatar = async (req, res) => {
+  try {
+    if (req.params.id === res.body._id.toString()) {
+      const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+          cb(null, `src/server/uploads/users/avatar`);
+        },
+        filename: function (req, file, cb) {
+          const formattedDate = new Date()
+            .toLocaleString("en-US", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })
+            .replace(/\//g, "-")
+            .replace(/,/, "-")
+            .replace(/\s+/g, "-")
+            .replace(/[ :]+/g, "-")
+            .replace(/--/, "-");
+
+          cb(
+            null,
+            res.body.account.firstName.toLowerCase() +
+              "-" +
+              res.body.account.lastName.toLowerCase() +
+              "-" +
+              formattedDate.toLowerCase() +
+              path.extname(file.originalname)
+          );
+        },
+      });
+      const upload = multer({
+        storage: storage,
+        limits: { fileSize: 1000000 },
+        fileFilter: function (req, file, cb) {
+          if (
+            file.mimetype === "image/jpeg" ||
+            file.mimetype === "image/jpg" ||
+            file.mimetype === "image/png"
+          ) {
+            cb(null, true);
+          } else {
+            return res.status(400).json({
+              status: 400,
+              success: false,
+              message: `File must be a jpeg, jpg, or png file.`,
+            });
+          }
+        },
+      });
+      upload.single("avatar")(req, res, function (error) {
+        if (error) {
+          if (error.message === "Unexpected field") {
+            return res.status(400).json({
+              status: 400,
+              success: false,
+              message: `avatar is required.`,
+            });
+          }
+          if (error.message === "File too large") {
+            return res.status(400).json({
+              status: 400,
+              success: false,
+              message: `File size cannot be more than 1MB.`,
+            });
+          }
+          return res.status(400).json({
+            status: 400,
+            success: false,
+            message: `${error.message}`,
+          });
+        } else {
+          usersService
+            .updateAvatar(req.params.id, req.file.path)
+            .then((resp) => {
+              return res.status(200).json({
+                status: 200,
+                success: true,
+                message: `Your avatar has been updated.`,
+                user: resp,
+              });
+            })
+            .catch((error) => {
+              return res.status(400).json({
+                status: 400,
+                success: false,
+                message: `${error.message}`,
+              });
+            });
+        }
+      });
+    } else {
+      return res.status(403).json({
+        status: 403,
+        success: false,
+        message: `You do not have sufficient privilege to perform this operation.`,
+      });
+    }
+  } catch (error) {
+    return res.status(400).json({
+      status: 400,
+      success: false,
+      message: `${error.message}`,
+    });
+  }
+};
+
 module.exports = {
   createUser,
   readAllUsers,
@@ -480,4 +591,5 @@ module.exports = {
   updateRole,
   updatePassword,
   updateProfile,
+  updateAvatar,
 };
